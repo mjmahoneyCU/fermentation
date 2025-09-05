@@ -26,7 +26,7 @@ In contrast, the anaerobic condition assumes that no oxygen is available at all,
 
 st.markdown("""
 
-Use the sliders to explore how parameters affect the outcomes. Ethanol oxidation activates when glucose is low.
+Use the sliders to explore how parameters affect the outcomes. 
 """)
 
 # --- Parameter Guide ---
