@@ -166,4 +166,3 @@ with st.expander("🧠 Reflection Questions"):
 4. **How does enabling ethanol inhibition affect the outcomes?**
 5. **Compare how substrate is used in batch vs fed-batch conditions.**
 """)
-XS
