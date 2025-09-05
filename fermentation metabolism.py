@@ -18,7 +18,6 @@ This simulation models biomass growth, glucose consumption, and ethanol producti
 - **Fed-Batch**: Glucose is added continuously, allowing controlled growth and product formation.
 
 🔍 **Note**: Oxygen is assumed to be non-limiting in the aerobic modes (*respiration*, *Crabtree*, and *fed-batch aerobic*). During Week 2 of your lab, you’ll need to monitor dissolved oxygen and adjust agitation or airflow to maintain oxygen availability.
-
 """)
 
 st.markdown("Use the sliders to explore how parameters affect the outcomes. Ethanol oxidation occurs only in aerobic conditions when glucose is low.")
@@ -28,19 +27,18 @@ st.sidebar.header("Global Parameters")
 ethanol_inhibition = st.sidebar.checkbox("Enable Ethanol Inhibition", value=True)
 Se_threshold = st.sidebar.slider("Glucose Threshold for Ethanol Oxidation (g/L)", 0.1, 5.0, 1.0)
 S0_user = st.sidebar.slider("Initial Glucose (Non-Respiration) (g/L)", 1.0, 50.0, 20.0)
+X0_user = st.sidebar.slider("Initial Biomass (g/L)", 0.01, 1.0, 0.1)
 t_end = st.sidebar.slider("Simulation Time (h)", 5, 72, 24)
 
 st.sidebar.header("Fed-Batch Settings")
 fedbatch_aerobic = st.sidebar.radio("Fed-Batch Mode:", ["Aerobic", "Anaerobic"])
-Sf_feed = st.sidebar.slider("Feed Glucose Concentration (g/L)", 10.0, 100.0, 50.0)
 F_rate = st.sidebar.slider("Feed Rate (g/L/h)", 0.0, 2.0, 0.1)
 
 # --- Initial Conditions ---
-X0 = 0.1  # Biomass
 P0 = 0.0  # Ethanol
 
 # --- ODE Model ---
-def fermentation_model(t, y, mu_max, Yxs, Yps, Yxe, Ks, Kp, Ke, aerobic, inhibition, Se_thresh, Sf_feed=0, F_rate=0, mode="batch"):
+def fermentation_model(t, y, mu_max, Yxs, Yps, Yxe, Ks, Kp, Ke, aerobic, inhibition, Se_thresh, F_rate=0, mode="batch"):
     X, S, P = y
     mu_ethanol = 0
 
@@ -68,26 +66,26 @@ def run_simulation(mode):
     if mode == "respiration":
         params = (0.3, 0.5, 0.0, 0.4, 1.0, 50.0, 2.0, True, ethanol_inhibition, Se_threshold)
         S0 = 0.5
-        fb_params = {"Sf_feed": 0, "F_rate": 0}
+        fb_params = {"F_rate": 0}
     elif mode == "crabtree":
         params = (0.4, 0.45, 0.5, 0.4, 1.0, 50.0, 2.0, True, ethanol_inhibition, Se_threshold)
         S0 = S0_user
-        fb_params = {"Sf_feed": 0, "F_rate": 0}
+        fb_params = {"F_rate": 0}
     elif mode == "anaerobic":
         params = (0.25, 0.4, 0.6, 0.4, 1.0, 50.0, 2.0, False, ethanol_inhibition, Se_threshold)
         S0 = S0_user
-        fb_params = {"Sf_feed": 0, "F_rate": 0}
+        fb_params = {"F_rate": 0}
     elif mode == "fed-batch":
         if fedbatch_aerobic == "Aerobic":
             params = (0.4, 0.45, 0.5, 0.4, 1.0, 50.0, 2.0, True, ethanol_inhibition, Se_threshold)
         else:
             params = (0.25, 0.4, 0.6, 0.4, 1.0, 50.0, 2.0, False, ethanol_inhibition, Se_threshold)
         S0 = S0_user
-        fb_params = {"Sf_feed": Sf_feed, "F_rate": F_rate}
+        fb_params = {"F_rate": F_rate}
     else:
         raise ValueError("Invalid mode")
 
-    y0 = [X0, S0, P0]
+    y0 = [X0_user, S0, P0]
     sol = solve_ivp(
         fermentation_model,
         [0, t_end],
@@ -136,7 +134,6 @@ df = pd.DataFrame({
     "μ_max": [0.3, 0.4, 0.25, 0.4 if fedbatch_aerobic == "Aerobic" else 0.25],
     "Yxs": [0.5, 0.45, 0.4, 0.45 if fedbatch_aerobic == "Aerobic" else 0.4],
     "Yps": [0.0, 0.5, 0.6, 0.5 if fedbatch_aerobic == "Aerobic" else 0.6],
-    "Sf_feed": ["-", "-", "-", f"{Sf_feed:.1f}"],
     "F_rate": ["-", "-", "-", f"{F_rate:.2f}"]
 })
 st.dataframe(df.style.format({"μ_max": "{:.2f}", "Yxs": "{:.2f}", "Yps": "{:.2f}"}), use_container_width=True)
@@ -150,4 +147,3 @@ with st.expander("🧠 Reflection Questions"):
 4. **How does enabling ethanol inhibition affect the outcomes?**
 5. **Compare how substrate is used in batch vs fed-batch conditions.**
 """)
-
