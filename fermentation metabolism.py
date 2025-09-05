@@ -10,6 +10,19 @@ st.set_page_config(page_title="Yeast Metabolism Simulator", layout="wide")
 st.title("🧬 Yeast Metabolism Simulation")
 
 st.markdown("""
+This simulation models biomass growth, glucose consumption, and ethanol production under four common yeast metabolic modes:
+
+- **Respiration**: Aerobic growth with no ethanol production.
+- **Crabtree Effect**: Aerobic overflow metabolism — cells produce ethanol even when oxygen is present, due to excess glucose.
+- **Anaerobic Fermentation**: Ethanol is produced as the sole byproduct, in the absence of oxygen.
+- **Fed-Batch**: Glucose is added continuously, allowing controlled growth and product formation.
+
+The kinetic parameters used for each mode are listed in the table below. These values represent biological assumptions about yields, growth rates, and product formation under different conditions.
+
+🔍 **Note**: Oxygen is **not explicitly limiting** in this model — the system assumes that oxygen transfer (via agitation and aeration) is sufficient to meet demand. In real bioreactors, however, oxygen supply becomes a critical constraint as biomass increases. During **Week 2 of your lab**, you’ll need to monitor this carefully and adjust **kₗₐ** (oxygen transfer coefficient) by changing agitation speed or gas flow rate to maintain dissolved oxygen levels and avoid oxygen-limited growth.
+""")
+
+st.markdown("""
 Simulates glucose consumption, ethanol production and oxidation, and biomass growth under different yeast metabolic modes:
 - **Respiration**
 - **Crabtree Effect**
